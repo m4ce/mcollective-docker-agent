@@ -83,23 +83,51 @@ module MCollective
 
     private
 
+    def human_duration(ts)
+      diff = Time.now.to_i - ts
+      if diff < 1
+        "Less than a second ago"
+      elsif diff < 60 # < 1m
+        "#{diff} seconds ago"
+      elsif diff >= 60 and diff < 120 # >= 1m < 2m
+        "About a minute"
+      elsif diff < 3600 # < 1h
+        "#{diff / 60} minutes ago"
+      elsif diff < 7200 # < 2h
+        "About an hour"
+      elsif diff < (86400 * 2) # < 2d
+        "#{diff / 3600} hours ago"
+      elsif diff < (86400 * 7 * 2) # < 2w
+        "#{diff / 86400} days ago"
+      elsif diff < (86400 * 30 * 3) # < 3m
+        "#{diff / (86400 * 7)} weeks ago"
+      elsif diff < (86400 * 365 * 2) # < 2y
+        "#{diff / (86400 * 30)} months ago"
+      else
+        "#{diff / (86400 * 365)} years ago"
+      end
+    end
+
     def ps_action
       docker = rpcclient("docker")
 
       responses = docker.ps({:all => configuration[:all]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
-          puts("  %-15s %-30s %-25s %-15s %-25s %s" % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS"])
+          puts("  %-15s %-30s %-25s %-18s %-25s %s" % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS"])
           response[:data][:containers].each do |container|
-            puts("  %-15s %-30s %-25s %-15s %-25s %s" % [container['id'][0..11], container['Image'][0..30], '"' + container['Command'][0..20] + '"', container['Created'], container['Status'], container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')])
+            puts("  %-15s %-30s %-25s %-15s %-25s %s" % [container['id'][0..11], container['Image'][0..30], '"' + container['Command'][0..20] + '"', human_duration(container['Created']), container['Status'], container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')])
           end
         else
           puts("  #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -109,17 +137,20 @@ module MCollective
       responses = docker.images({:all => configuration[:all]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
           puts("  %-45s %-20s %-20s %-20s %s" % ["REPOSITORY", "TAG", "IMAGE ID", "CREATED", "VIRTUAL SIZE"])
           response[:data][:images].each do |image|
-            puts("  %-45s %-20s %-20s %-20s %s" % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..12], image['Created'], image['VirtualSize']])
+            puts("  %-45s %-20s %-20s %-20s %s" % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..12], human_duration(image['Created']), image['VirtualSize']])
           end
         else
           puts("  #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -129,7 +160,9 @@ module MCollective
       responses = docker.info({:id => configuration[:id], :type => configuration[:type]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -139,6 +172,7 @@ module MCollective
         else
           puts("  #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -148,7 +182,9 @@ module MCollective
       responses = docker.diff({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -158,6 +194,7 @@ module MCollective
         else
           puts("  #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -167,7 +204,9 @@ module MCollective
       responses = docker.status({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -177,6 +216,7 @@ module MCollective
         else
           puts("  #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -186,7 +226,9 @@ module MCollective
       responses = docker.start({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -194,6 +236,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -203,7 +246,9 @@ module MCollective
       responses = docker.stop({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -211,6 +256,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -220,7 +266,9 @@ module MCollective
       responses = docker.restart({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -228,6 +276,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -237,7 +286,9 @@ module MCollective
       responses = docker.kill({:container_id => configuration[:container_id], :signal => configuration[:signal]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -245,6 +296,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -254,7 +306,9 @@ module MCollective
       responses = docker.pause({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -262,6 +316,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -271,7 +326,9 @@ module MCollective
       responses = docker.unpause({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -279,6 +336,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -288,7 +346,9 @@ module MCollective
       responses = docker.rm({:container_id => configuration[:container_id], :force => configuration[:force]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -296,6 +356,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -305,7 +366,9 @@ module MCollective
       responses = docker.rmi({:image_id => configuration[:image_id], :force => configuration[:force]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -313,6 +376,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -322,7 +386,9 @@ module MCollective
       responses = docker.exec({:container_id => configuration[:container_id], :command => configuration[:arguments], :wait => configuration[:wait]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -344,6 +410,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -353,7 +420,9 @@ module MCollective
       responses = docker.logs({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -365,6 +434,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -374,7 +444,9 @@ module MCollective
       responses = docker.top({:container_id => configuration[:container_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -385,6 +457,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -394,7 +467,9 @@ module MCollective
       responses = docker.pull({:image_id => configuration[:image_id]})
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -402,6 +477,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
 
@@ -415,7 +491,9 @@ module MCollective
       responses = docker.tag(opts)
       responses.sort_by! { |r| r[:sender] }
 
+      count = 0
       responses.each do |response|
+        puts if count > 0
         puts("#{response[:sender]}:")
         puts
         if response[:statuscode] == 0
@@ -423,6 +501,7 @@ module MCollective
         else
           puts("  Status: #{response[:statusmsg]}")
         end
+        count += 1
       end
     end
   end
