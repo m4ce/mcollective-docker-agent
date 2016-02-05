@@ -49,7 +49,7 @@ action "info", :description => "Inspect a container or image" do
     :prompt      => "ID",
     :description => "Container/Image ID",
     :type        => :string,
-    :validation  => '^[a-z0-9_.-\/:]+$',
+    :validation  => '^[a-z0-9_.\-\/:]+$',
     :optional    => false,
     :maxlength   => 256
 
