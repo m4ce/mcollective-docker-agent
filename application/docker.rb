@@ -108,6 +108,16 @@ module MCollective
       end
     end
 
+    def filesize(bytes)
+      {
+        'B'  => 1024,
+        'KB' => 1024 * 1024,
+        'MB' => 1024 * 1024 * 1024,
+        'GB' => 1024 * 1024 * 1024 * 1024,
+        'TB' => 1024 * 1024 * 1024 * 1024 * 1024
+      }.each_pair { |e, s| return "#{(bytes.to_f / (s / 1024)).round(2)}#{e}" if bytes < s }
+    end
+
     def ps_action
       docker = rpcclient("docker")
 
@@ -120,9 +130,9 @@ module MCollective
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
-          puts("  %-15s %-30s %-25s %-18s %-25s %s" % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS"])
+          puts("  %-15s %-30s %-25s %-20s %-25s %s" % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS"])
           response[:data][:containers].each do |container|
-            puts("  %-15s %-30s %-25s %-15s %-25s %s" % [container['id'][0..11], container['Image'][0..30], '"' + container['Command'][0..20] + '"', human_duration(container['Created']), container['Status'], container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')])
+            puts("  %-15s %-30s %-25s %-20s %-25s %s" % [container['id'][0..11], container['Image'][0..30], '"' + container['Command'][0..20] + '"', human_duration(container['Created']), container['Status'], container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')])
           end
         else
           puts("  #{response[:statusmsg]}")
@@ -143,9 +153,9 @@ module MCollective
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
-          puts("  %-45s %-20s %-20s %-20s %s" % ["REPOSITORY", "TAG", "IMAGE ID", "CREATED", "VIRTUAL SIZE"])
+          puts("  %-60s %-20s %-20s %-20s %s" % ["REPOSITORY", "TAG", "IMAGE ID", "CREATED", "VIRTUAL SIZE"])
           response[:data][:images].each do |image|
-            puts("  %-45s %-20s %-20s %-20s %s" % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..12], human_duration(image['Created']), image['VirtualSize']])
+            puts("  %-60s %-20s %-20s %-20s %s" % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..12], human_duration(image['Created']), filesize(image['VirtualSize'])])
           end
         else
           puts("  #{response[:statusmsg]}")
