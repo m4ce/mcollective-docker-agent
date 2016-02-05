@@ -13,7 +13,7 @@ Follow the basic [plugin install guide](http://docs.puppetlabs.com/mcollective/d
 
 ## Configuring the agent
 
-By default the agent uses the unix socket /var/lib/docker.sock to communicate with Docker. You can optionally change it in the *server.cfg*:
+By default the agent uses the unix socket */var/run/docker.sock* to communicate with Docker. You can optionally change it in the *server.cfg*:
 
     docker.url = <URL>
 
