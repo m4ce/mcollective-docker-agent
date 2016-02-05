@@ -79,6 +79,9 @@ Tag an image:
 
   * Implement push action
   * Implement data plugins for filtering
+  * Implement actions to manage docker networks
+  * Implement actions to manage docker volumes
+  * Implement rename action
 
 ## Author
 Matteo Cerutti - <matteo.cerutti@hotmail.co.uk>
