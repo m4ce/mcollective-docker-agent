@@ -2,7 +2,7 @@ metadata :name => "MCollective Docker Agent",
          :description => "MCollective Agent to orchestrate Docker",
          :author => "Matteo Cerutti <matteo.cerutti@hotmail.co.uk>",
          :license => "Apache 2.0",
-         :version => "0.0.1",
+         :version => "0.0.2",
          :url => "http://github.com/m4ce/mcollective-docker-agent",
          :timeout => 60
 
