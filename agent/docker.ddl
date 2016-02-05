@@ -1,10 +1,12 @@
-metadata :name        => "MCollective Docker Agent",
+metadata :name => "MCollective Docker Agent",
          :description => "MCollective Agent to orchestrate Docker",
-         :author      => "Matteo Cerutti <matteo.cerutti@hotmail.co.uk>",
-         :license     => "Apache 2.0",
-         :version     => "0.0.1",
-         :url         => "http://github.com/m4ce/mcollective-docker-agent",
-         :timeout     => 60
+         :author => "Matteo Cerutti <matteo.cerutti@hotmail.co.uk>",
+         :license => "Apache 2.0",
+         :version => "0.0.1",
+         :url => "http://github.com/m4ce/mcollective-docker-agent",
+         :timeout => 60
+
+requires :mcollective => "2.2.1"
 
 action "ps", :description => "List containers" do
   input :all,
