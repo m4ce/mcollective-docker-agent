@@ -14,7 +14,7 @@ module MCollective
             reply[:containers] << container.info
           end
         rescue Exception => e
-          reply.fail("Failed to look up containers (#{e.message.chomp})")
+          reply.fail("look up failed (#{e.message.chomp})")
         end
       end
 
@@ -25,7 +25,7 @@ module MCollective
             reply[:images] << image.info
           end
         rescue Exception => e
-          reply.fail("Failed to look up images (#{e.message.chomp})")
+          reply.fail("look up failed (#{e.message.chomp})")
         end
       end
 
