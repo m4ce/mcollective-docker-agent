@@ -124,15 +124,38 @@ module MCollective
       responses = docker.ps({:all => configuration[:all]})
       responses.sort_by! { |r| r[:sender] }
 
+      # find longest image and ports
+      length = {
+        'image' => 0,
+        'ports' => 0,
+        'created' => 0,
+        'status' => 0
+      }
+      responses.each do |response|
+        if response[:statuscode] == 0
+          response[:data][:containers].each do |container|
+            length['image'] = container['Image'].length if container['Image'].length > length['image']
+            container['Ports'] = container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')
+            length['ports'] = container['Ports'].length if container['Ports'].length > length['ports']
+            container['Created'] = human_duration(container['Created'])
+            length['created'] = container['Created'].length if container['Created'].length > length['created']
+            length['status'] = container['Status'].length if container['Status'].length > length['status']
+          end
+        end
+      end
+
+      # build header
+      header = "  %%-15s %%-%ds %%-25s %%-%ds %%-%ds %%-%ds %%s" % [length['image'] + 2, length['created'] + 2, length['status'] + 2, length['ports'] + 2]
+
       count = 0
       responses.each do |response|
         puts if count > 0
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
-          puts("  %-15s %-30s %-25s %-20s %-25s %s" % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS"])
+          puts(header % ["ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS", "NAMES"])
           response[:data][:containers].each do |container|
-            puts("  %-15s %-30s %-25s %-20s %-25s %s" % [container['id'][0..11], container['Image'][0..30], '"' + container['Command'][0..20] + '"', human_duration(container['Created']), container['Status'], container['Ports'].map { |i| "#{i['IP']}:#{i['PrivatePort']}->#{i['PublicPort']}/#{i['Type']}" }.join(', ')])
+            puts(header % [container['id'][0..11], container['Image'], '"' + container['Command'][0..21] + '"', container['Created'], container['Status'], container['Ports'], container['Names'].join(', ')])
           end
         else
           puts("  #{response[:statusmsg]}")
@@ -147,15 +170,39 @@ module MCollective
       responses = docker.images({:all => configuration[:all]})
       responses.sort_by! { |r| r[:sender] }
 
+      # find longest image and ports
+      length = {
+        'repository' => 0,
+        'tag' => 0,
+        'created' => 0
+      }
+
+      responses.each do |response|
+        if response[:statuscode] == 0
+          response[:data][:images].each do |image|
+            repo = image['RepoTags'].first.split(':')[0]
+            length['repository'] = repo.length if repo.length > length['repository']
+
+            tag = image['RepoTags'].first.split(':')[1]
+            length['tag'] = tag.length if tag.length > length['tag']
+
+            image['Created'] = human_duration(image['Created'])
+            length['created'] = image['Created'].length if image['Created'].length > length['created']
+          end
+        end
+      end
+
+      header = "  %%-%ds %%-%ds %%-15s %%-%ds %%s" % [length['repository'] + 2, length['tag'] + 2, length['created'] + 2]
+
       count = 0
       responses.each do |response|
         puts if count > 0
         puts "#{response[:sender]}:"
         puts
         if response[:statuscode] == 0
-          puts("  %-60s %-20s %-20s %-20s %s" % ["REPOSITORY", "TAG", "IMAGE ID", "CREATED", "VIRTUAL SIZE"])
+          puts(header % ["REPOSITORY", "TAG", "IMAGE ID", "CREATED", "VIRTUAL SIZE"])
           response[:data][:images].each do |image|
-            puts("  %-60s %-20s %-20s %-20s %s" % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..12], human_duration(image['Created']), filesize(image['VirtualSize'])])
+            puts(header % [image['RepoTags'].first.split(':')[0], image['RepoTags'].first.split(':')[1], image['id'][0..11], image['Created'], filesize(image['VirtualSize'])])
           end
         else
           puts("  #{response[:statusmsg]}")
