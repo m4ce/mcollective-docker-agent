@@ -237,7 +237,7 @@ action "rmi", :description => "Remove an image" do
     :description => "ID",
     :prompt      => "Image ID",
     :type        => :string,
-    :validation  => '^[a-zA-Z0-9\-_]+$',
+    :validation  => '^[a-z0-9_.-\/:]+$',
     :optional    => false,
     :maxlength   => 30
 
