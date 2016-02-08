@@ -2,7 +2,7 @@ metadata :name => "MCollective Docker Agent",
          :description => "MCollective Agent to orchestrate Docker",
          :author => "Matteo Cerutti <matteo.cerutti@hotmail.co.uk>",
          :license => "Apache 2.0",
-         :version => "0.0.7",
+         :version => "0.0.8",
          :url => "http://github.com/m4ce/mcollective-docker-agent",
          :timeout => 60
 
@@ -43,13 +43,14 @@ action "info", :description => "Inspect a container or image" do
     :type        => :string,
     :validation  => '^(container|image)$',
     :optional    => false,
+    :default    => "container",
     :maxlength   => 9
 
   input :id,
     :prompt      => "ID",
     :description => "Container/Image ID",
     :type        => :string,
-    :validation  => '^[a-z0-9_.\-\/:]+$',
+    :validation  => '^[a-z0-9_\.\-\/:]+$',
     :optional    => false,
     :maxlength   => 256
 
@@ -237,7 +238,7 @@ action "rmi", :description => "Remove an image" do
     :description => "ID",
     :prompt      => "Image ID",
     :type        => :string,
-    :validation  => '^[a-z0-9_.-\/:]+$',
+    :validation  => '^[a-z0-9_\.\-\/:]+$',
     :optional    => false,
     :maxlength   => 30
 
@@ -319,7 +320,7 @@ action "pull", :description => "Pull an image or a repository from a registry" d
     :description => "Image",
     :prompt      => "Image Name",
     :type        => :string,
-    :validation  => '^[a-z0-9_.-\/:]+$',
+    :validation  => '^[a-z0-9_\.\-\/:]+$',
     :optional    => false,
     :maxlength   => 255
 
@@ -350,7 +351,7 @@ action "tag", :description => "Tag an image into a repository" do
     :description => "Image Repository",
     :prompt      => "Repository",
     :type        => :string,
-    :validation  => '^[a-z0-9_.-\/]+$',
+    :validation  => '^[a-z0-9_\.\-\/]+$',
     :optional    => false,
     :maxlength   => 255
 
@@ -358,7 +359,7 @@ action "tag", :description => "Tag an image into a repository" do
     :description => "Image Tag",
     :prompt      => "Tag",
     :type        => :string,
-    :validation  => '^[a-z0-9_.-:]+$',
+    :validation  => '^[a-z0-9_\.\-:]+$',
     :default     => "latest",
     :optional    => true,
     :maxlength   => 255

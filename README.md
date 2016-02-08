@@ -75,6 +75,38 @@ Tag an image:
 
     $ mco docker tag <name>[:tag] [<repo>/]<name>[:tag]
 
+## Data plugin
+
+The docker agent also supplies some data plugins. See the examples below:
+
+Ping hosts where an image is present:
+
+    $ mco rpc rpcutil ping -S "docker_image('<ID>').exists=true"
+
+Ping hosts where a container is present:
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').exists=true"
+
+Ping hosts where a container is running:
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').running=true"
+
+Ping hosts where a container is restarting:
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').restarting=true"
+
+Ping hosts where a container is paused:
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').paused=true"
+
+Ping hosts where a container is dead:
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').dead=true"
+
+Ping hosts where a container experienced OOM killing
+
+    $ mco rpc rpcutil ping -S "docker_container('<ID>').oomkilled=true"
+
 ## TODO
 
   * Implement push action
