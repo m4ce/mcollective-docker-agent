@@ -25,7 +25,8 @@ module MCollective
     option :type,
            :arguments   => ['-t <TYPE>', '--type <TYPE>'],
            :description => 'Container or image type',
-           :type        => String
+           :type        => String,
+           :default     => "container"
 
     option :force,
            :arguments   => ['-f', '--force'],
