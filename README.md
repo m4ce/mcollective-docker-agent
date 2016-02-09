@@ -113,6 +113,9 @@ Ping hosts where a container experienced OOM killing
   * Implement actions to manage docker networks
   * Implement actions to manage docker volumes
   * Implement rename action
+  * Implement create action
+  * Implement run/create action
+  * Add ability to specify container and image patterns
 
 ## Author
 Matteo Cerutti - <matteo.cerutti@hotmail.co.uk>
